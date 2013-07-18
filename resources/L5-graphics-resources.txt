@@ -1,0 +1,57 @@
+
+Retrieving Data from URL's
+==========================
+
+# http://tonybreyal.wordpress.com/2011/11/18/htmltotext-extracting-text-from-html-via-xpath/
+
+
+
+Chloropleths:
+
+#A nice tutorial from Milan R (step by step Chloropleths)
+http://www.milanor.net/blog/?p=634
+
+# Spatial Analysis (London) has 2 or 3 relavant tutorials
+http://spatialanalysis.co.uk/2010/09/rmaps/
+http://spatialanalysis.co.uk/2010/09/maps-with-ggplot2/
+
+Which in turn inspired
+
+#Playing with R to write this post about the Bay Area:
+http://playingwithr.blogspot.com/2011/04/plotting-maps-with-r.html
+
+
+# Peter Chen in first foray into Maps
+http://dataillumination.blogspot.com/2013/03/visualizing-farmers-markets-geo-data_19.html
+
+
+Non Chloropleths
+=========================
+
+
+Mapping World's Airlines
+# http://spatialanalysis.co.uk/2012/06/mapping-worlds-biggest-airlines/
+Step by Step, nice tutorial
+
+
+
+Knitr
+=======
+
+
+Shiny
+========
+## http://trestletechnology.net/2013/02/introduction-to-shiny-slides/
+
+
+
+Meta on R
+============
+
+# On writing Packages
+
+## Best place to start - RStudio's writeup
+http://www.rstudio.com/ide/docs/packages/overview
+
+## Hadley's document on Environments (Devtools)
+https://github.com/hadley/devtools/wiki/Environments
