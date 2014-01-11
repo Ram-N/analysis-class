@@ -1,7 +1,8 @@
 #' Intro to Data Analysis  
 #' R Code for Lecture 3
 #' @author Ram Narasimhan
-#'
+#' Data Manipulation and Summarization
+#' 
 
 # Let's Read the input files for use later on.
 
@@ -75,10 +76,15 @@ iris[with(iris, Sepal.Length==5.8),]
 ## DEALING WITH NA's
 
 airquality$Ozone #make sure that we do see some NA's
-summary(airquality) #Notice that Summary tells us how many NA's there are
+
+#First, run is.na() on the column.
+is.na(airquality$Ozone)
 
 #How many Ozone values are NA?
 sum(is.na(airquality$Ozone))
+
+#Shortcut. Simply use summary()
+summary(airquality) #Notice that Summary tells us how many NA's there are
 
 #Print ROWS that DON'T have an NA for Ozone
 airquality[!is.na(airquality$Ozone) , ]
@@ -96,6 +102,28 @@ airquality$Solar.R[tf] <- 0
 summary(airquality)
 
 
+#---------------------------------------------
+#Convert strings to numbers
+as.numeric("18.3")
+as.integer("18")
+as.integer("18.9") #rounds it down to an integer
+as.numeric("18a")
+
+#Extract Numbers from Strings
+x <-  '8 23 37 38 20 40 39 41 21 33'
+tokens <- strsplit(x, " ")
+str(tokens)
+vec <- unlist(tokens)
+str(vec)
+nums <- as.numeric(vec)
+str(nums)
+
+# or in one line - efficient perhaps, but less readable
+nums <- as.numeric(unlist(strsplit(x," ")))
+str(nums)
+#---------------------------------------------
+
+
 
 # Split the Time column
 daytime <- strsplit(as.character(santa$Time), " ")
@@ -104,6 +132,40 @@ df <- ldply(daytime)
 colnames(df) <- c("Date", "_Time")
 santa <- cbind(santa, df)
 str(santa)
+
+##--- factors in R ------------------#
+class(iris$Species)
+iris$Species[1:5] #notice that all Levels are listed
+
+str(mtcars)
+#Let's make the "gear" column into a factor
+mtcars$gear <- as.factor(mtcars$gear)
+str(mtcars$gear)
+##--- factors in R ------------------#
+
+### USE of SUBSET() COMMAND
+# Format: subset(dataframe, condition)
+
+# Note: movies is present in ggplot2
+# To keep only the R-rated movies
+subset(movies, mpaa=="R") 
+subset(iris, Species=="versicolor")
+subset(iris, Sepal.Length > 7)
+
+#Let's find the Murder Rate of the States in the highest Quartile
+topQuartileMurderRate <- quantile(USArrests$Murder)[4]
+#Now print the Arrests for these states with the highest Arrests for Murder
+subset(USArrests, Murder > topQuartileMurderRate )
+
+# USE OF Subset to get condition and only print out certain columns.
+# We have to use the select argument to get the columns we want.
+# If multiple columns are desired, use c(column1, column2, column3)
+subset(USArrests, Murder > topQuartileMurderRate, select=UrbanPop )
+
+# TO DROP COLUMNS FROM DATA SETS USING just the column names subset()
+smallUSArrests <- subset(USArrests, select=c(-UrbanPop, -Rape)) #Minus means we don't want those columns
+
+
 
 
 #################
@@ -141,15 +203,51 @@ summary(nice.groups)
 
 hml <- cut(santa$TemperatureF, breaks=c(0, 70, 90, 110), labels=c("Low","Medium","High"))
 summary(hml)
-### 
-# A P P L Y
-####
 
-dim(iris)
-iris[1,]
-iris
-apply(iris[,1:4], 1, mean)
+#--------------------------------
+# A P P L Y Family of Functions
+#-------------------------------
 
+apply(mtcars, 1, max) #take each row of mtcars, and find its max value.
+
+apply(iris[,1:4], 1, mean) #caution: This is just for illustration.
+#taking the mean of a bunch of different columns usually doesn't make mathematical sense.
+
+#applying functions to columns
+apply(mtcars, 2, summary)
+
+
+summary(movies)
+
+# L A P P L Y
+
+lst <- list(1,"abc", 1.3, TRUE)
+listClasses <- lapply(lst, class)
+listClasses
+
+#--- SAPPLY might be even better 
+#--- understand the difference between the two commands:
+lClasses <- lapply(lst, class)
+sClasses <- sapply(lst,class)
+str(lClasses)
+str(sClasses)
+
+
+lClasses <- lapply(mtcars, mean)
+sClasses <- sapply(mtcars,mean)
+str(lClasses)
+str(sClasses)
+
+
+
+lapply(airquality$Ozone, round)
+sapply(airquality$Ozone, round)
+
+sapply(airquality, max)
+head(airquality)
+
+
+#-------BY------------
 # Notice the contrast when using BY
 # By is a "group by" for different factors
 by(iris[, 1:4], Species, colMeans)
@@ -167,41 +265,18 @@ sapply(airquality, max)
 head(airquality)
 
 
-# A P P L Y
-####
-
-dim(iris)
-iris[1,]
-iris
-apply(iris[,1:4], 1, mean)
-
-# Notice the contrast when using BY
-# By is a "group by" for different factors
-by(iris[, 1:4], Species, colMeans)
-
-
-# L A P P L Y
-
-l <- lapply(iris, class)
-s <- sapply(iris,class)
-
-lapply(airquality$Ozone, round)
-sapply(airquality$Ozone, round)
-
-sapply(airquality, max)
-head(airquality)
 # T A P P L Y
-x <- 1:20
-#A factor (of the same length!) defining groups:
 
-y <- factor(rep(c("CA","NY", "WA", "IL", "TX"), each = 4))
-#Add up the values in x within each subgroup defined by y:
-tapply(x, y, sum)  
-a  b  c  d  e  
-10 26 42 58 74 
+#hts of 10 people 
+heights <- c(177, 153, 133, 121, 164, 161, 127, 122, 180, 161, 131, 128)
+groupIndex <- c("Male", "Woman", "Child", "Child","Male", "Woman", "Child", "Child","Male", "Woman", "Child", "Child")
+#IMPORTANT: heights and index should be of the same length. 
+# Each element of the vector should have an group identified in the Index vector.
+tapply(heights, groupIndex, mean)
 
-tapply(x,y)
 
+
+gdp <- read.csv("~/data/countries_wide.csv") #replace this with the right path for your file
 str(gdp)
 tapply(gdp$POP, gdp$country.isocode, mean)
 tapply(gdp$POP, list(gdp$country.isocode,gdp$year), mean)
@@ -237,19 +312,6 @@ ddply(titanic, .(Class, Sex, Survived), summarize, Total=sum(Freq))
 
 str(titanic)
 
-#---------------------------------------------
-#Extract Numbers from Strings
-x <-  '8 23 37 38 20 40 39 41 21 33'
-tokens <- strsplit(x, " ")
-str(tokens)
-vec <- unlist(tokens)
-str(vec)
-nums <- as.numeric(vec)
-str(nums)
-# or in one line
-nums <- as.numeric(unlist(strsplit(x," ")))
-str(nums)
-#---------------------------------------------
 
 
 ## M E R G E
