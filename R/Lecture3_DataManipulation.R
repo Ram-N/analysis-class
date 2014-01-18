@@ -170,29 +170,78 @@ smallUSArrests <- subset(USArrests, select=c(-UrbanPop, -Rape)) #Minus means we 
 
 #################
 # TABLE
+Usage: table(vector)
+table(iris$Species)
+
+table(mtcars$gear)
+table(mtcars$cyl)
+table(mtcars$gear, mtcars$cyl) #put it together to create a summary table
+
+names(mtcars)
+
 names(movies)
+library(ggplot2)
+#Table Using "with" -- notice that we don't need to use $
 with(movies, table(year))
 with(movies, table(length))
-with(movies, table(length<200))
+with(movies, table(length>200))
 
 
-#################
-
-library(datasets)
-str(UCBAdmissions)
-xtabs(~Gender, data=UCBAdmissions)
-?xtabs
-
-Convert to a data frame for easy cross tabulation
-DF <- as.data.frame(UCBAdmissions)
-## a data frame with a grid of factors and the counts in variable 'Freq'.
-DF
-xtabs(Freq~ Admit + Gender, data=DF)
-xtabs(Freq ~ ., DF)
-summary(xtabs(Freq ~ ., DF)) #This is one way to test for independence
+#---------------
+# X T A B S
+#---------------
+#CROSS TABULATION
+#xtabs Uses the 'formula syntax'
 
 
+xtabs(Freq ~ Class, data=Titanic)
+xtabs(Freq ~ Sex, data=Titanic)
+xtabs(Freq ~ Survived, data=Titanic)
+
+#-- Make it slightly more complex. Bring in TWO VARIABLES.
+
+#Notice the difference between the following two commands
+xtabs(Freq ~ Survived+Sex, data=Titanic)
+xtabs(Freq ~ Sex+Survived, data=Titanic)
+#In the first Survived is the rows. In the other, Survived becomes the columns
+
+
+
+########################
+#AGGREGATE
+########################
+
+#---- 
+# Aggregate WITHOUT USING THE FORMULA SYNTAX
+# You can also use aggregate without the formula syntax.
+# Here are some examples.
+
+aggregate(airquality, by=list(airquality$Month), FUN=mean)
+aggregate(airquality, by=list(airquality$Month), FUN=mean, na.rm=TRUE)
+aggregate(airquality, by=list(airquality$Month, airquality$Day), FUN=mean, na.rm=TRUE)
+
+#BONUS Example
+aggregate(state.x77, list(Region = state.region), mean)
+
+
+#-----
+# USING FORUMLA SYNTAX
+#------
+
+aggregate(data=airquality, Ozone~Month, mean)
+aggregate(data=airquality, Ozone~Month+Day, mean)
+
+#use cbind if you want to aggregate more than one variable
+aggregate(data=airquality, cbind(Ozone,Wind)~Month+Day, mean)
+
+#Bonus Example: IRIS DATA SET
+aggregate(. ~Species, data=iris, FUN='length')
+aggregate(Species ~ Sepal.Length, data=iris, FUN='length') #this is NOT what we want
+
+
+# ------------------------
 # C U T
+# ------------------------
 
 grouped.T <- cut(santa$TemperatureF, 10)
 summary(grouped.T)
@@ -281,17 +330,6 @@ str(gdp)
 tapply(gdp$POP, gdp$country.isocode, mean)
 tapply(gdp$POP, list(gdp$country.isocode,gdp$year), mean)
 
-########################
-#AGGREGATE
-########################
-aggregate(Sepal.Length~Species, data=iris, FUN='length')
-aggregate(Species ~ Sepal.Length, data=iris, FUN='length')
-?aggregate
-
-#BONUS Example
-aggregate(state.x77, list(Region = state.region), mean)
-state.x77
-state.region
 
 ############
 # D D P L Y 
