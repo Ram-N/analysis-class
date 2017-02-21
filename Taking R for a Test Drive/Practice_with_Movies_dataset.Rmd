@@ -1,0 +1,154 @@
+---
+title: "Class Exercise: Movies Dataset"
+author: "Ram Narasimhan"
+date: '`r Sys.Date()`<br><br><a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img style="border-width:0" src="images/by-nc-sa-4.0-88x31.png" /></a>'
+output:
+  ioslides_presentation:
+    css: css/ioslides.css
+    logo: images/logo.jpg
+    widescreen: yes
+subtitle: Exploring a data set
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(fig.width=4, fig.height=4, fig.path = "fig/start-")
+```
+
+# Exercise
+
+![](images/movie_posters.jpg)
+
+## Let's Practice with the Movies data
+![](images/ggplto2.jpg)
+
+We will use the  `movies` dataset (ggplot2movies):
+
+```{r}
+library(ggplot2movies)
+# This loads the movies dataset
+```
+
+# How many rows? <br> What are the dimensions?
+
+## {.build}
+
+```{r}
+nrow(movies)
+```
+
+```{r}
+dim(movies)
+```
+
+#  Get the `head`, `tail`, <br> columns names, row names
+
+## `head()` {.build .smaller}
+```{r}
+head(movies)
+```
+
+## `tail()` {.build .smaller}
+```{r}
+tail(movies)
+```
+
+## Column & Row Names {.build .smaller}
+
+```{r}
+names(movies)
+row.names(movies)
+```
+
+
+##  Summarize the dataset {.build .smaller}
+
+```{r}
+summary(movies)
+```
+
+
+#  What can we learn just from scanning `summary(movies)`?
+
+# About time periods? <br> Budgets? <br> Movie run times?
+
+##  Summarize the dataset {.build .smaller}
+
+```{r}
+summary(movies$year)
+summary(movies$budget)
+summary(movies$length)
+
+```
+# Why is the median and the mean for `votes` so far apart?
+
+##  Summarize the dataset {.build .smaller}
+```{r}
+summary(movies$votes)
+```
+
+# Look at the `mpaa` column summary
+
+##  Summarize the dataset {.build .smaller}
+```{r}
+summary(movies$mpaa)
+```
+That is not very helpful!  
+
+# How many types of MPAA ratings are there?
+
+##  How many MPAA? {.build .smaller}
+```{r}
+unique(movies$mpaa)
+```
+
+## Which is the latest year with movies in the dataset?{.build .smaller}
+
+```{r}
+max(movies$year)
+```
+
+
+# Do the ratings for the 3rd movie add up to 100?
+
+## Do the Ratings % Add up to 100? {.build .smaller}
+```{r}
+names(movies)
+sum(movies[3, 7:16])
+movies[3, 7:16]
+```
+
+
+
+## Get all the titles released in Year 2000
+
+```{r}
+condtion <- movies$year ==2000 # we can store the condition
+length(movies$title[condtion])
+head(movies$title[condtion])
+
+```
+ 
+ 
+## Relative percentages of the various `genres`? | What percent of all the movies are Drama, Romance etc. {.build .smaller}
+
+
+```{r}
+sum(movies$Romance)/nrow(movies)
+mean(movies$Romance)
+```
+
+---
+
+```{r}
+mean(movies$Action)
+mean(movies$Comedy)
+mean(movies$Drama)
+```
+
+
+# Questions?
+
+
+
+
