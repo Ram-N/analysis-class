@@ -1,0 +1,413 @@
+---
+title: Working with data in a data frame
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    fig.width=4, fig.height=4,
+    fig.path = "fig/dataframes-")
+```
+
+# Working with data in a data frame
+
+As we saw earlier, `read.csv` loads tabular data from a CSV file into a data frame.
+
+```{r}
+diabetes <- read.csv("r-intro-files/diabetes.csv")
+
+class(diabetes)
+head(diabetes)
+colnames(diabetes)
+ncol(diabetes)
+nrow(diabetes)
+```
+
+> ### Tip {.callout}
+>
+> A data frame can also be created from vectors, with the `data.frame` function. For example
+>
+> ```{r}
+> data.frame(foo=c(10,20,30), bar=c("a","b","c"))
+> ```
+>
+
+> ### Tip {.callout}
+>
+> A data frame can have both column names (`colnames`) and rownames (`rownames`). However, the modern convention is for a data frame to use column names but not row names. Typically a data frame contains a collection of items (rows), each having various properties (columns). If an item has an identifier such as a unique name, this would be given as just another column.
+>
+
+
+## Indexing data frames
+
+As with a matrix, a data frame can be accessed by row and column with `[,]`.
+
+One difference is that if we try to get a single row of the data frame, we get back a data frame with one row, rather than a vector. This is because the row may contain data of different types, and a vector can only hold elements of all the same type.
+
+Internally, a data frame is a list of column vectors. We can use the `$` syntax we saw with lists to access columns by name.
+
+
+## Logical indexing
+
+A method of indexing that we haven't discussed yet is logical indexing. Instead of specifying the row number or numbers that we want, we can give a logical vector which is `TRUE` for the rows we want and `FALSE` otherwise. This can also be used with vectors and matrices.
+
+Suppose we want to look at all the subjects 80 years of age or over. We first make a logical vector:
+
+```{r}
+is_over_80 <- diabetes$age >= 80
+
+head(is_over_80)
+sum(is_over_80)
+```
+
+`>=` is a comparison operator meaning greater than or equal to. We can then grab just these rows of the data frame where `is_over_80` is `TRUE`.
+
+```{r}
+diabetes[is_over_80,]
+```
+
+We might also want to know *which* rows our logical vector is `TRUE` for. This is achieved with the `which` function. The result of this can also be used to index the data frame.
+
+```{r}
+which_over_80 <- which(is_over_80)
+which_over_80
+
+diabetes[which_over_80,]
+```
+
+Comparison operators available are:
+
+* `x == y ` -- "equal to"
+* `x != y ` -- "not equal to"
+* `x < y  ` -- "less than"
+* `x > y  ` -- "greater than"
+* `x <= y ` -- "less than or equal to"
+* `x >= y ` -- "greater than or equal to"
+
+More complicated conditions can be constructed using logical operators:
+
+* `a & b ` -- "and", true only if both `a` and `b` are true.
+* `a | b ` -- "or", true if either `a` or `b` or both are true.
+* `! a   ` -- "not" , true if `a` is false, and false if `a` is true.
+
+```{r}
+is_over_80_and_female <- is_over_80 & diabetes$gender == "female"
+
+is_not_from_buckingham <- !(diabetes$location == "Buckingham")
+# or
+is_not_from_buckingham <- diabetes$location != "Buckingham"
+```
+
+The data we are working with is derived from a dataset called `diabetes` in the `faraway` package. The rows are people interviewed as part of a study of diabetes prevalence. The column `glyhb` is a measurement of percent glycated haemoglobin, which gives information about long term glucose levels in blood. Values of 7% or greater are usually taken as a positive diagnosis of diabetes. Let's add this as a column.
+
+```{r}
+diabetes$diabetic <- diabetes$glyhb >= 7.0
+
+head(diabetes)
+```
+
+## Different ways to do the same thing
+
+Above where we retrieved people 80 or over we could just as well have written:
+
+```{r eval=FALSE}
+weedle<- diabetes $age>=   80
+diabetes[    weedle ,]
+```
+
+R does not understand or care about the names we give to variables, and it doesn't care about spaces between things.
+
+We could also have written it as a single line:
+
+```{r eval=FALSE}
+diabetes[diabetes$age >= 80,]
+```
+
+We can almost always unpack complex expressions into a series of simpler variable assignments. The naming of variables and how far to unpack complex expressions is a matter of good taste. Will you understand it when you come back to it in a year? Will someone else understand your code?
+
+
+> ### Challenge {.challenge}
+>
+> Which female subjects from Buckingham are under the age of 25?
+>
+> What is their average glyhb?
+>
+> Are any of them diabetic?
+>
+> Test your understanding by writing your solutions several different ways.
+>
+
+
+## Missing data
+
+`summary` gives an overview of a data frame.
+
+```{r}
+summary(diabetes)
+```
+
+We see that some columns contain `NA`s. `NA` is R's way of indicating missing data. Missing data is important in statistics, so R is careful with its treatment of this. If we try to calculate with an `NA` the result will be `NA`.
+
+```{r}
+1 + NA
+
+mean(diabetes$glyhb)
+```
+
+Many summary functions, such as `mean`, have a flag to say ignore `NA` values.
+
+```{r}
+mean(diabetes$glyhb, na.rm=TRUE)
+```
+
+There is also an `is.na` function, allowing us to find which values are NA, and `na.omit` which removes NAs.
+
+```{r}
+not_missing <- !is.na(diabetes$glyhb)
+mean( diabetes$glyhb[not_missing] )
+
+mean( na.omit(diabetes$glyhb) )
+```
+
+`na.omit` can also be used on a whole data frame, and removes rows with NA in any column.
+
+## Factors
+
+When R loads a CSV file, it tries to give appropriate types to the columns.
+Let's examine what types R has given our data.
+
+```{r}
+str(diabetes)
+```
+
+We might have expected the text columns to be the "character" data type, but they are instead "factor"s.
+
+```{r}
+head( diabetes$frame )
+```
+
+R uses the factor data type to store a vector of *categorical* data. The different possible categories are called "levels".
+
+Factors can be created from character vectors with `factor`. We sometimes care what order the levels are in, since this can affect how data is plotted or tabulated by various functions. If there is some sort of baseline level, such as "wildtype strain" or "no treatment", it is usually given first. `factor` has an argument `levels=` to specify the desired order of levels.
+
+Factors can be converted back to a character vector with `as.character`.
+
+When R loaded our data, it chose levels in alphabetical order. Let's adjust that for the column `diabetes$frame`.
+
+```{r}
+diabetes$frame <- factor(diabetes$frame, levels=c("small","medium","large"))
+
+head( diabetes$frame )
+```
+
+## Plotting factors
+
+Some functions in R do different things if you give them different types of argument. `summary` and `plot` are examples of such functions.
+
+If we `plot` factors, R shows the proportions of each level in the factor. We can also see that R uses the order of levels we gave it in the plot.
+
+```{r}
+plot( diabetes$frame )
+```
+
+When we give R two factors to plot it produces a "mosaic plot" that helps us see if there is any relationship between the two factors.
+
+```{r}
+plot( diabetes$gender, diabetes$frame )
+```
+
+`diabetes$diabetic` is logical, but we can tell R to turn it into a factor to produce this type of plot for this column as well.
+
+```{r}
+plot( factor(diabetes$diabetic) )
+plot( diabetes$frame, factor(diabetes$diabetic) )
+```
+
+
+## Summarizing factors
+
+The `table` function gives us the actual numbers behind the graphical summaries we just plotted (a "contingency table").
+
+```{r}
+table(diabetes$frame)
+table(diabetes$diabetic, diabetes$frame)
+```
+
+Fisher's Exact Test (`fisher.test`) or a chi-squared test (`chisq.test`) can be used to show that two factors are not independent.
+
+```{r}
+fisher.test( table(diabetes$diabetic, diabetes$frame) )
+```
+
+> ### Challenge - gender and diabetes {.challenge}
+>
+> Do you think there is any association between gender and whether a person is diabetic shown by this data set?
+>
+> Why, or why not?
+>
+
+
+## Summarizing data frames
+
+We were able to summarize the dimensions (rows or columns) of a matrix with `apply`. In a data frame instead of summarizing along different dimensions, we can summarize with respect to different factor columns.
+
+We already saw how to count different levels in a factor with `table`.
+
+We can use summary functions such as `mean` with a function called `tapply`, which works similarly to `apply`. The three arguments we need are very similar to the three arguments we used with `apply`:
+
+1. The data to summarize.
+2. What we want *not* to be collapsed away in the output.
+3. The function to use to summarize the data.
+
+However rather than specifying a *dimension* for argument 2 we specify a *factor*.
+
+```{r}
+tapply(diabetes$glyhb, diabetes$frame, mean)
+```
+
+We obtain NAs because our data contains NAs. We need to tell `mean` to ignore these. Additional arguments to `tapply` are passed to the function given, here `mean`, so we can tell `mean` to ignore NA with
+
+```{r}
+tapply(diabetes$glyhb, diabetes$frame, mean, na.rm=TRUE)
+```
+
+The result is a vector, with names from the classifying factor. These means of a continuous measurement seem to be bearing out our earlier observation using a discrete form of the measurement, that this data show some link between body frame and diabetes prevalence.
+
+We can summarize over several factors, in which case they must be given as a list. Two factors produces a matrix. More factors would produce a higher dimensional *array*.
+
+```{r}
+tapply(diabetes$glyhb, list(diabetes$frame, diabetes$gender), mean, na.rm=TRUE)
+```
+
+This is similar to a "pivot table", which you may have used in a spreadsheet.
+
+
+> ### Challenge {.challenge}
+>
+> Find the age of the youngest and oldest subject, for each gender and in each location in the study.
+>
+> Extension: How could we clean up the data frame so we never needed to use `na.rm=TRUE` when summarizing glyhb values?
+>
+
+
+## Melting a matrix into a data frame
+
+You may be starting to see that the idea of a matrix and the idea of a data frame with some factor columns are interchangeable. Depending on what we are doing, we may shift between these two representations of the same data.
+
+Modern R usage emphasizes use of data frames over matrices, as data frames are the more flexible representation. Everything we can represent with a matrix we can represent with a data frame, but not vice versa.
+
+`tapply` took us from a data frame to a matrix. We can go the other way, from a matrix to a data frame, with the `melt` function in the package `reshape2`.
+
+```{r}
+library(reshape2)
+
+averages <- tapply(diabetes$glyhb, list(diabetes$frame, diabetes$gender), mean, na.rm=TRUE)
+melt(averages)
+
+counts <- table(diabetes$frame, diabetes$gender)
+melt(counts)
+```
+
+> ### Tip {.callout}
+>
+> The `aggregate` function effectively combines these two steps for you. This can also be done with the popular `dplyr` library's `summarise` function. There are many variations on the basic idea behind `apply`!
+>
+
+
+## Merging two data frames
+
+One often wishes to merge data from two different sources. We want a new data frame with columns from both of the input data frames. This is also called a `join` operation.
+
+Information about cholesterol levels for our diabetes study has been collected, and we have it in a second CSV file.
+
+```{r}
+cholesterol <- read.csv("r-intro-files/chol.csv")
+head(cholesterol)
+```
+
+Great! We'll just add this new column of data to our data frame.
+
+```{r}
+diabetes2 <- diabetes
+diabetes2$chol <- cholesterol$chol
+```
+
+Oh. The two data frames don't have exactly the same set of subjects. We should also have checked if they were even in the same order before blithely combining them. R has shown an error this time, but there are ways to mess up like this that would not show an error. How embarassing.
+
+```{r}
+nrow(diabetes)
+nrow(cholesterol)
+length( intersect(diabetes$subject, cholesterol$subject) )
+```
+
+### Inner join using the `merge` function
+
+We will have to do the best we can with the subjects that are present in both data frames (an "inner join"). The `merge` function lets us merge the data frames.
+
+```{r}
+diabetes2 <- merge(diabetes, cholesterol, by="subject")
+
+nrow(diabetes2)
+head(diabetes2)
+
+plot(diabetes2$chol, diabetes2$glyhb)
+```
+
+Note that the result is in a different order to the input. However it contains the correct rows.
+
+
+### Left join using the `merge` function
+
+`merge` has various optional arguments that let us tweak how it operates. For example if we wanted to retain all rows from our first data frame we could specify `all.x=TRUE`. This is a "left join".
+
+```{r}
+diabetes3 <- merge(diabetes, cholesterol, by="subject", all.x=TRUE)
+
+nrow(diabetes3)
+head(diabetes3)
+```
+
+The data missing from the second data frame is indicated by NAs.
+
+> ### Tip {.callout}
+>
+> Besides `merge`, there are various ways to join two data frames in R.
+>
+> * In the simplest case, if the data frames are the same length and in the same order, `cbind` ("column bind") can be used to put them next to each other in one larger data frame.
+>
+> * The `match` function can be used to determine how a second data frame needs to be shuffled in order to match the first one. Its result can be used as a row index for the second data frame.
+>
+> * The `dplyr` package offers various join functions: `left_join`, `inner_join`,  `outer_join`, etc. One advantage of these functions is that they preserve the order of the first data frame.
+>
+
+
+## Appendix: Fitting models
+
+A *linear model* tells you how various variables can be weighted together to predict an outcome. Many statistical tests can be thought of as comparing different linear models. Fitting linear models is well beyond the scope of this course, but we briefly mention them because this is one of the major uses of R.
+
+```{r}
+mod1 <- lm(glyhb ~ age + frame + chol, data=diabetes2)
+mod1
+summary(mod1)
+```
+
+We have obtained a model that, approximately
+
+```
+glyhb = 1.84 + 0.0411*age + 0.463*(frame=="medium") + 
+        0.556*(frame=="large") + 0.00716*chol
+```
+
+There is considerable flexibility in the choice of variables which might be combined to predict the outcome. Perhaps `frame` is not informative if we already know `age` and `chol`, or perhaps other variables have predictive value. There are ways to test these questions statistically.
+
+One problem here is that `glyhb` is skewed, and `lm` assumes errors in the model are normally distributed. A possible solution would be to try to fit a model to `log(glyhb)`. Another possible solution is to try to model the binary outcome column `diabetic` instead, using *logistic regression*:
+
+```{r}
+mod2 <- glm(diabetic ~ age + frame + chol, data=diabetes2, family="binomial")
+summary(mod2)
+```
+
+This model predicts the *log odds* of a patient having diabetes.
+
+Again, this is well beyond the scope of this course. Just know that it is possible to construct a predictor of a continuous or binary outcome using R. Such predictors also tell you about the relative imporance of various explanatory variables. Consult a statistician if this approach is what you need.
+
+
