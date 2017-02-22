@@ -1,0 +1,114 @@
+---
+title: "Intro to Data Quality in R"
+author: "Ram Narasimhan"
+date: '`r Sys.Date()`<br><br><a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img style="border-width:0" src="images/by-nc-sa-4.0-88x31.png" /></a>'
+output:
+  ioslides_presentation:
+    css: css/ioslides.css
+    logo: images/logo.jpg
+    widescreen: yes
+subtitle: A few checks on the data's quality
+---
+
+
+## Outline {#Outline}
+```{r Outline}
+```
+We are interested:
+
+1. Understanding the quality of our datasets
+2. Missing values
+3. Dealing with Missing Values (NAs)
+4. Duplicated Rows
+
+
+## Data Quality
+
+Datasets in real life are never perfect.
+How to handle these real-life data quality issues?
+
+- Missing Values
+- Duplicate Rows
+- Inconsistent Dates
+- Impossible Values (Ex. Negative Sales)
+     - Check using if conditions
+     - Try outlier detection
+
+
+## The 4 types of 
+
+ 1. NA  # missing 
+ 2. Null # undefined
+ 3. Inf # infinite 3/0
+ 4. Nan # Not a number Inf/Inf
+ 
+## From R's Documentation
+ 
+ ```
+ NULL represents the null object in R: it is a reserved word. NULL is often returned by expressions and functions whose value is undefined.
+ ```
+
+ ```
+Not Available/Missing Values
+NA is a logical constant of length 1 which contains a missing value indicator.
+ ```
+ 
+## Missing values
+
+```{r}
+x <- c(1, 2, 3, NA, 5)
+mean(x)
+mean(x, na.rm=TRUE)
+
+```
+
+## Dealing with Unavailable Values {.build}
+
+To check if any value is NA use:
+`is.na()`
+
+is.na() can be applied to a single variable or a vector
+
+```{r}
+x <- c(3, NA, 4, 5, NA, NA)
+is.na(x[2])
+is.na(x)
+!is.na(x)
+```
+
+## Let's try this on `airquality` dataset {.build}
+
+Print out only those rows where Ozone is **not** NA
+
+```{r eval=FALSE}
+is.na(airquality$Ozone)
+!is.na(airquality$Ozone) # prints TRUE if Ozone qty is not NA
+```
+Whenever that is TRUE, we want to keep the rows...
+
+```{r eval=FALSE}
+airquality[!is.na(airquality$Ozone), ]
+```
+
+## How to Convert the NA's to 0 {.build}
+
+```{r}
+tf_vector <- is.na(airquality$Solar.R)
+airquality$Solar.R[tf_vector] <- 0
+airquality$Solar.R
+```
+
+
+
+
+## How can we find `duplicated` rows? {.build}
+
+What logic could we use to catch all the rows that repeat in our datase?
+
+```{r}
+duplicated(iris)
+```
+
+
+# End
+
