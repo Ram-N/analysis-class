@@ -1,0 +1,62 @@
+---
+title: "Descriptive Analysis"
+author: "Ram Narasimhan"
+date: '`r Sys.Date()`<br><br><a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img style="border-width:0" src="images/by-nc-sa-4.0-88x31.png" /></a>'
+output:
+  ioslides_presentation:
+    css: css/ioslides.css
+    logo: images/logo.jpg
+    widescreen: yes
+subtitle: Crude Oil Data Analysis
+---
+
+
+## Outline {#Outline}
+
+We are interested:
+
+1. Wide vs. Long data
+2. What is Tidy Data?
+3. Vectorized operations
+4. Separate vs. Unite
+
+
+
+# Let's Practice with some data {.smaller}
+
+## Let's read the Crude Oil Data {.smaller}
+
+```{r, message=F, warning=F}
+library(dplyr)
+```
+
+```{r}
+df <- read.csv('data/CrudeOilProduction.csv', stringsAsFactors = F)
+prices <- read.csv('data/CrudeOilImportPrices.csv', stringsAsFactors=F )
+
+head(df)
+```
+
+##
+```{r}
+head(prices)
+str(prices)
+```
+
+##
+```{r}
+row_max <- which.max(prices$PriceUSD)
+prices[row_max, ]
+```
+
+## {.smaller}
+```{r}
+subset(prices, Country == "ITA")
+```
+
+
+# End
+
+
+
+
