@@ -1,0 +1,163 @@
+---
+title: "Web Scraping Using R"
+author: "Ram Narasimhan"
+date: '`r Sys.Date()`<br><br><a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img style="border-width:0" src="images/by-nc-sa-4.0-88x31.png" /></a>'
+output:
+  ioslides_presentation:
+    css: css/ioslides.css
+    logo: images/logo.jpg
+    widescreen: yes
+subtitle: Getting Data from the Web
+---
+
+
+## Outline {#Outline}
+
+1. Getting CSV / Text files
+2. Tables in Web Pages
+3. `rvest` Package
+4. Using HMTL tags - (Slightly more advanced)
+
+## Text and Data files over the Web
+
+If you can find a CSV format in the web, you can read it quite easily
+
+* R can import data from text files.
+* You **don't** need to make a local copy of the file. R will fetch the data over the internet.
+
+We use two commands for this:
+
+### `read.table(url)` and 
+
+### `read.csv(url)`
+
+Can continue the analysis.
+Two important options: **`header`** & **`sep`**
+
+## Let's try it out {.build}
+
+```{r}
+url <- "http://data.princeton.edu/wws509/datasets/ships.dat"
+df <- read.table(url)
+head(df)
+```
+
+```{r}
+names(df)
+```
+
+# Practical Tip: If you see any CSV or TXT file on the web, try to see if `read.table` works
+
+## Reading Stock Quotes Directly
+
+
+```{r}
+star <- "&a=01&b=22&c=2017"
+end <- "&d=01&e=22&f=2017"
+fin <- "&g=d&ignore.csv"
+ticker <- "GE"
+url <- paste0("http://ichart.finance.yahoo.com/table.csv?s=",
+              ticker, star, end, fin)
+read.csv(url)
+```
+
+##
+```{r}
+library(XML)
+library(rvest)
+```
+
+
+## Which are the highest rated movies in imbd? {.build .smaller}
+
+Just 3-4 lines of R code
+```{r}
+imdb <- "http://www.imdb.com/chart/top"
+tbls <- readHTMLTable(imdb)
+summary(tbls)
+top <- tbls[[1]]; 
+top[,1] <-NULL
+top[1:7, 1:2]
+```
+
+
+## 
+```{r}
+opec_url <-"http://www.opec.org/library/Annual%20Statistical%20Bulletin/interactive/current/FileZ/Main-Dateien/SubSection3.html"
+tbls <- readHTMLTable(opec_url)
+str(tbls)
+```
+
+# rvest
+
+## About the `rvest` Package
+
+`rvest` is new package that makes it easy to scrape (or harvest) data from html web pages.
+
+- Inspired by libraries like beautiful soup.
+- Uses the idea of a CSS Selctor (on HTML tags)
+
+`install.packages("rvest")`
+
+## Useful commands for us in  `rvest` 
+
+<b>
+
+- read_html()
+- html_nodes()
+- html_table()
+- html_text()
+
+</b>
+
+
+## `read_html` [ in rvest package]
+ 
+Given a URL, it reads the contents.
+
+
+## `html_node` [ in rvest package]
+
+To find the nodes that matches that selector.
+
+`html_nodes("div")` will find all the `div`s in a html document
+
+## `html_text` [ in rvest package]
+
+Gets the content of the selected nodes.
+
+
+## `html_table` [ in rvest package]
+
+Coverts a html table into an `R data frame`
+
+`fill` - If TRUE, automatically fill rows with fewer than the maximum number of columns with NAs.
+-- Remember that a dataframe has to have the *same* number of columns in all rows.
+
+## Let's try it out
+
+```{r eval=FALSE}
+opec_url %>% read_html() %>%
+  html_nodes("table") %>% #we are only interested in the tables
+  html_table
+```
+```
+Error: Table has inconsistent number of columns. Do you want fill = TRUE?
+```
+
+## Fill needs to be specified
+
+```{r}
+rv_tables <- opec_url %>% read_html() %>%
+  html_nodes("table") %>%
+  html_table(fill=TRUE)
+summary(rv_tables)
+```
+
+
+
+# End
+
+
+
+
