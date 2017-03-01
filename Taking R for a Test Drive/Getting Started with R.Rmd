@@ -1,0 +1,187 @@
+---
+title: "Getting Started with R"
+author: "Ram Narasimhan"
+date: '`r Sys.Date()`<br><br><a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img style="border-width:0" src="images/by-nc-sa-4.0-88x31.png" /></a>'
+output:
+  ioslides_presentation:
+    css: css/ioslides.css
+    logo: images/logo.jpg
+    widescreen: yes
+subtitle: Getting Started with R
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(fig.width=4, fig.height=4, fig.path = "fig/start-")
+```
+
+## Warming up {.build}
+
+<div class="columns-2">
+
+<img src="images/warmup.png" alt="logo" height="500">
+
+```{r}
+15 * 7.7 # as a calculator
+x <- 3 # assign to a variable.
+y <- 10 # note the use of <- to assign
+z <- 3:10
+z * 3
+```
+
+</div>
+
+
+## Challenge {.build}
+
+Find the square root of 1000.
+
+Print only three decimal places.
+
+```{r}
+sqrt(1000)
+round(sqrt(1000), 3)
+```
+
+
+## Basic stats {.build .smaller}
+
+```{r}
+a <- 1:10
+b <- c(4,4,4,5,5,6,6,6,7,8)
+c <- c(1,1,1,1,1,10,10,10,10,10)
+mean(a) ; mean(b); mean(c)
+sd(a) ; sd(b) ; sd(c)
+
+```
+
+
+## Directory Related Functions | Finding your way within R
+
+The concept of a working directory
+
+`getwd() #get the current working directory`
+
+`setwd() # Enter some other directory here, to make it the working directory`
+
+Which files are in the directory?
+`list.files() # to search current directory`
+
+To search some other directory:
+`dirpath <- "~/name/RStats"`
+
+`dir(dirpath, full=TRUE)`
+
+Your Turn: Which *.csv files are in the current directory?
+
+Hint: `use ?list.files`
+
+TIP: Create a directory to store all your R scripts in "RStats"
+
+## How to get HELP in R?
+
+```markdown
+> ?<function name> # when you know the command
+> ??<topic> # broader search
+> help (command name)
+> help (package=<packagename>)
+??Binomial
+help(Binomial)
+```
+### R Documentation has a strict set pattern
+Description | Usage | Arguments | Value | Details | Reference | See Also | Examples
+
+Tip: Most users start by looking at the examples
+  
+Important: You can cut-and-paste Examples from help directly into the console.
+
+##
+You can simply type it into the Help tab in RStudio
+
+
+![](images/RStudioHelp.jpg)
+
+
+## Tip {.callout}
+>
+> If you're not sure what type of value you are dealing with you can use `class`, or for more detailed information `str` (structure). Try the following:
+>
+> ```{r eval=FALSE}
+> class(myvec)
+> class(mylist)
+> str(mylist)
+> ```
+>
+
+## vector
+
+Vectors contain zero or more elements, *all of the same basic type* ("mode").
+
+Elements can be named (`names`), but often aren't.
+
+Access single elements: `vec[5]`
+
+Take a subset of a vector: `vec[c(1,3,5)]` `vec[c(TRUE,FALSE,TRUE,FALSE,TRUE)]`
+
+Vectors come in several different flavours.
+
+## numeric vector
+
+Numbers. Internally stored as "floating point" so there is a limit to the number of digits accuracy, but this is usually entirely adequate.
+
+Examples: `42` `1e-3` `c(1,2,0.7)`
+
+Casting: `as.numeric("42")`
+
+## character vector
+
+Character strings.
+
+Examples: `"hello"` `c("Let","the","computer","do","the","work")`
+
+Casting: `as.character(42)`
+
+## logical vector
+
+TRUE or FALSE values.
+
+```
+Examples: `TRUE` `FALSE` `T` `F` `c(TRUE,FALSE,TRUE)`
+```
+
+## factor vector
+
+A categorical vector, where the elements can be one of several different "levels". There will be more on these in the chapter on data frames.
+
+Creation/casting: `factor(c("mutant","wildtype","mutant"), levels=c("wildtype","mutant"))`
+
+## list
+
+Lists contain zero or more elements, of any type. Elements of a list can even be vectors with their own multiple elements, or other lists. If your data can't be bundled up in any other type, bundle it up in a list.
+
+List elements can and typically do have names (`names`).
+
+Access an element: `mylist[[5]]` `mylist[["elementname"]]` `mylist$elementname`
+
+Creation: `list(a=1, b="two", c=FALSE)`
+
+## data.frame
+
+A data frame is a two dimensional tabular data structure in which the columns may have different types, but all the elements in each column must have the same type.
+
+Data frame rows and columns may have names (`rownames`, `colnames`). However in typical usage columns are named but rows are not.[^pmatchnote]
+
+[^pmatchnote]: For some reason, data frames use partial matching on row names, which can cause some very puzzling bugs.
+
+Accessing elements, rows, and columns is the same as for matrices, but we can also get a whole column using `$`.
+
+Creation: `data.frame(colname1=values1,colname2=values2,...)`
+
+Casting: `as.data.frame( )`
+
+
+# Questions?
+
+
+
+

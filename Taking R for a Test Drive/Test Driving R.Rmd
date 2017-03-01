@@ -16,17 +16,6 @@ Some of this material is derived from:
 [Monash BioInfomatics](https://monashbioinformaticsplatform.github.io/r-intro/)
 
 
-## Outline {#Outline}
-```{r Outline}
-```
-We are interested:
-
-1. Wide vs. Long data
-2. What is Tidy Data?
-3. Vectorized operations
-4. Separate vs. Unite
-
-
 ```{r, include = FALSE}
 knitr::opts_chunk$set(fig.width=4, fig.height=4, fig.path = "fig/start-")
 ```
